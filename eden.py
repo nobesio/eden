@@ -1,12 +1,15 @@
 from random import randint
 import copy
 
+# Auxiliary Function for rotating the DNA in each cycle.
 def rotate(l,n):
     return l[n:] + l[:n]
-class history:
+
+# History is the object responsible for accounting all the organisms.
+class History:
     def __init__(self):
         self.orgs = []
-    def addOrg(self, org):
+    def addOrganism(self, org):
         self.orgs.append(org)
     def getGenepool(self):
         genepool = []
@@ -22,7 +25,8 @@ class history:
                         unit[2] += 1
         return genepooldetail
 
-class organism:
+# Organism is the structure for the living organisms.
+class Organism:
     def __init__(self, name, dna, energy):
         self.memory = 0
         self.name = name
@@ -37,11 +41,11 @@ class organism:
     def toAge(self):
         self.age += 1
     def reportStatus(self):
-        print("NAME: ", self.name)
+        print("Name: ", self.name)
         print("DNA: ", self.dna)
-        print("ENERGY: ", self.energy)
-        print("SIZE: ", self.size)
-        print("AGE: ", self.age)
+        print("Energy: ", self.energy)
+        print("Size: ", self.size)
+        print("Age: ", self.age)
     def divide(self):
         self.sons += 1
         son = copy.deepcopy(self)
@@ -68,13 +72,15 @@ class organism:
     def increaseEnergy(self, energy):
         self.energy = energy + energy
 
-class quantumPackage:
+# QuantumPackages are the "food" of this simulation. The name comes from the concept used in operative systems.
+class QuantumPackage:
     def __init__(self, quantums):
         self.quantums = quantums
     def __repr__(self):
         return 'QP'
 
-class enviroment: 
+# Enviroment is the class responsible for holding all the living organisms. 
+class Enviroment: 
     def __init__(self, size):
         self.size = size
         self.landscape = [[0 for x in range(size)] for x in range(size)]
@@ -89,7 +95,7 @@ class enviroment:
         for row in self.landscape:
             columna = 0
             for element in row:
-                if isinstance(element,organism):
+                if isinstance(element,Organism):
                    organisms.append((fila, columna))
                 columna += 1
             fila += 1
@@ -99,27 +105,27 @@ class enviroment:
         orgs = []
         for row in self.landscape:
             for element in row:
-                if isinstance(element,organism):
+                if isinstance(element,Organism):
                     orgs.append(element)
         return orgs
     def countOrgs(self):
                 cont = 0
                 for row in self.landscape:
                         for element in row:
-                                if isinstance(element, organism):
+                                if isinstance(element, Organism):
                                         cont += 1
                 return cont
     
-            
-        
-        
-class time:
+# Time is the class responsible for aging the living organisms.
+class Time:
     def aging(self, enviroment):
         for row in enviroment.landscape:
             for element in row:
-                if isinstance(element, organism):
+                if isinstance(element, Organism):
                     element.toAge()
-class death:
+
+# Death is the class responsible for killing old or starving organisms.
+class Death:
     def __init__(self):
         self.killed = []
     def kill(self, enviroment):
@@ -127,14 +133,16 @@ class death:
         for row in enviroment.landscape:
             columna = 0
             for element in row:
-                if isinstance(element, organism):
+                if isinstance(element, Organism):
                     if element.energy <= 0 or element.age > 20:
                         self.killed.append(element)
                         print("Killing ", fila, columna)
                         enviroment.landscape[fila][columna] = 0
                 columna +=1
             fila +=1
-class interpreter:
+
+# Interpreter is the class that gives life to the organism. It executes the code in their DNA.
+class Interpreter:
     def interprete(self, enviroment):
         def up():
             enviroment.landscape[x][y].decreaseEnergy()
@@ -143,7 +151,7 @@ class interpreter:
                 if enviroment.landscape[x-1][y] == 0:
                     enviroment.landscape[x-1][y] = enviroment.landscape[x][y]
                     enviroment.landscape[x][y] = 0
-                elif isinstance(enviroment.landscape[x-1][y],quantumPackage):
+                elif isinstance(enviroment.landscape[x-1][y],QuantumPackage):
                     enviroment.landscape[x][y].increaseEnergy(enviroment.landscape[x-1][y].quantums)
                     enviroment.landscape[x-1][y] = enviroment.landscape[x][y]
                     enviroment.landscape[x][y] = 0
@@ -154,7 +162,7 @@ class interpreter:
                 if enviroment.landscape[x+1][y] == 0:
                     enviroment.landscape[x+1][y] = enviroment.landscape[x][y]
                     enviroment.landscape[x][y] = 0
-                elif isinstance(enviroment.landscape[x+1][y],quantumPackage):
+                elif isinstance(enviroment.landscape[x+1][y],QuantumPackage):
                     enviroment.landscape[x][y].increaseEnergy(enviroment.landscape[x+1][y].quantums)
                     enviroment.landscape[x+1][y] = enviroment.landscape[x][y]
                     enviroment.landscape[x][y] = 0
@@ -165,7 +173,7 @@ class interpreter:
                 if enviroment.landscape[x][y+1] == 0:
                     enviroment.landscape[x][y+1] = enviroment.landscape[x][y]
                     enviroment.landscape[x][y] = 0
-                elif isinstance(enviroment.landscape[x][y+1],quantumPackage):
+                elif isinstance(enviroment.landscape[x][y+1],QuantumPackage):
                     enviroment.landscape[x][y].increaseEnergy(enviroment.landscape[x][y+1].quantums)
                     enviroment.landscape[x][y+1] = enviroment.landscape[x][y]
                     enviroment.landscape[x][y] = 0
@@ -176,7 +184,7 @@ class interpreter:
                 if enviroment.landscape[x][y-1] == 0:
                     enviroment.landscape[x][y-1] = enviroment.landscape[x][y]
                     enviroment.landscape[x][y] = 0
-                elif isinstance(enviroment.landscape[x][y-1],quantumPackage):
+                elif isinstance(enviroment.landscape[x][y-1],QuantumPackage):
                     enviroment.landscape[x][y].increaseEnergy(enviroment.landscape[x][y-1].quantums)
                     enviroment.landscape[x][y-1] = enviroment.landscape[x][y]
                     enviroment.landscape[x][y] = 0
@@ -275,48 +283,52 @@ class interpreter:
             options[gen]()
             
 
-book = history()
-earth = enviroment(30)
-earth.reportStatus()
-
-earth.landscape[0][0] = quantumPackage(10)
-#Poblemos Tierra
-for i in range(0,15):
-    x = randint(0, earth.size-1)
-    y = randint(0, earth.size-1)
-    if earth.landscape[x][y] == 0:
-        dna = []
-        for a in range(1,11):
-            dna.append(randint(0,12))
-        earth.landscape[x][y] = organism("Eva"+str(i), dna, 15)
-earth.reportStatus()
-
-chronos = time()
-parca = death()
-
-god = interpreter()
-
-for i in range(0,200):
-        if earth.countOrgs() > 0:
-                print("ciclo: ", i)
-                god.interprete((earth))
-                chronos.aging(earth)
-                parca.kill(earth)
-                earth.reportStatus()
-                for i in range(1,4):
-                        x = randint(0,29)
-                        y = randint(0,29)
-                        if earth.landscape[x][y] == 0:
-                                earth.landscape[x][y] = quantumPackage(randint(5,10))
-                for org in earth.getOrganisms():
-                        if not org in book.orgs:
-                                book.addOrg(org)
-        else:
-                print("SE MURIERON TODOS EN EL CICLO: ", i)
-                break
 
 
-print("Living:", len(earth.getOrganisms()))
-print("GENEPOOL:", book.getGenepool())
+if __name__ == '__main__':
+	book = History()
+	earth = Enviroment(10)
+	earth.reportStatus()
+
+	earth.landscape[0][0] = QuantumPackage(10)
+	earth.landscape[1][1] = Organism("Eva", [8,7,0,9,7,1,10,7,2,11,7,3,12,7,4], 15)
+	#Poblemos Tierra
+	for i in range(0,4):
+	    x = randint(0, earth.size-1)
+	    y = randint(0, earth.size-1)
+	    if earth.landscape[x][y] == 0:
+	        dna = []
+	        for a in range(1,11):
+	            dna.append(randint(0,12))
+	        earth.landscape[x][y] = Organism("Eva"+str(i), dna, 15)
+	earth.reportStatus()
+
+	chronos = Time()
+	parca = Death()
+
+	god = Interpreter()
+
+	for i in range(0,200):
+	        if earth.countOrgs() > 0:
+	                print("ciclo: ", i)
+	                god.interprete((earth))
+	                chronos.aging(earth)
+	                parca.kill(earth)
+	                earth.reportStatus()
+	                for i in range(1,4):
+	                        x = randint(0,9)
+	                        y = randint(0,9)
+	                        if earth.landscape[x][y] == 0:
+	                                earth.landscape[x][y] = QuantumPackage(randint(5,10))
+	                for org in earth.getOrganisms():
+	                        if not org in book.orgs:
+	                                book.addOrganism(org)
+	        else:
+	                print("SE MURIERON TODOS EN EL CICLO: ", i)
+	                break
+
+
+	print("Living:", len(earth.getOrganisms()))
+	print("GENEPOOL:", book.getGenepool())
 
 
